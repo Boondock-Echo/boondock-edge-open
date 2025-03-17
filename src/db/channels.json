@@ -1,10 +1,10 @@
 [
     {
         "id": 1,
-        "mac": "B8D61A5AD264",
-        "name": "NOAA_1",
+        "mac": "AABBCCDDEEFF",
+        "name": "NOAA",
         "status": "online",
-        "model": "medium.en",
+        "model": "small.en",
         "src_language": "english",
         "sensitivity": "47",
         "silence": "2600",

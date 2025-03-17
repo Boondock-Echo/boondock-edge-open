@@ -1,35 +1,8 @@
 {
     "admin": {
-        "password": "strikeamg",
-        "name": "user",
+        "password": "boondock",
+        "name": "boondock",
         "role": "admin",
-        "accessLevel": "Level 3"
-    },
-    "admin2": {
-        "password": "scrypt:32768:8:1$7o9S7JPqW9DwizAx$49619d911173aef7d2058cd8c0b238ec052b60744d94f691e7f60dd8ea14cfb1c8ada77d194521a855b89f6c40d5eddddd92b200efd1e474225c80bca54ad2f6",
-        "name": "test",
-        "role": "admin",
-        "accessLevel": "Level 3",
-        "lastActive": "Just now"
-    },
-    "admin1": {
-        "password": "admin@123",
-        "name": "user1"
-    },
-    "test124@gmail.com": {
-        "name": "test124@gmail.com",
-        "password": "test124@gmail.com",
-        "role": "admin",
-        "status": "Active",
-        "lastActive": "Just now",
-        "accessLevel": "Level 3"
-    },
-    "test@gmail.com": {
-        "name": "test user",
-        "password": "test@gmail.com",
-        "role": "admin",
-        "status": "Active",
-        "lastActive": "Just now",
         "accessLevel": "Level 3"
     }
 }

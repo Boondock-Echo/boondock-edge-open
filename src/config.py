@@ -4,4 +4,4 @@ class Config:
     UDP_PORT = 6001
     FLASK_HOST = '0.0.0.0'
     FLASK_PORT = 4000
-    CHANNELS = 6
+    CHANNELS = 1
