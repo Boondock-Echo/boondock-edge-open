@@ -15,3 +15,17 @@ Boondock Edge Open Source is a free to use solution for personal usage. It uses 
 
 Setup Raspberry Pi 5 with Lite OS, on a 64GB Micro SD card.
 
+install Git
+sudo apt install git
+sudo apt install pip
+
+Clone the repo
+
+git clone https://github.com/Boondock-Echo/boondock-edge-open.git
+
+cd boondock-edge-open
+
+sh install.sh
+
+
+###
