@@ -13,13 +13,13 @@ Standalone mode lets you attach a speaker and a display and you can use without 
 
 #### Headless mode
 - Raspberry Pi
-
-#### Stand-alone mode
-- 5 Inch LCD ( Or you can use any LCD for Raspberry Pi.)
-- USB Speakers ( )
 - Geekworm UPS ( Gives you battery power for hours of operation)
 - Li-ion 16520 rechargable batteries 
 - Boondock Tango 
+
+#### Stand-alone mode
+- 5 Inch LCD ( Or you can use any LCD for Raspberry Pi.)
+- USB Speakers ( Recommended Waveshare USB Speakers )
 
 Note: Boondock Tango is an open-source project by Boondock Technologies, that lets you connect BC125AT scanner, with an ESP-32 Audiokit. the Audiokit will record the audio, and you can control your Scanner over USB.
 
@@ -37,11 +37,10 @@ sudo apt install git python3-pip
 
 #### Clone the repo and install the application
 
-```
-git clone https://github.com/Boondock-Echo/boondock-edge-open.git
-```
+Run these commands to clone the code, and install it. The application gets installed at /opt/boondockedge/ folder.
 
 ```
+git clone https://github.com/Boondock-Echo/boondock-edge-open.git
 cd boondock-edge-open
 sudo chmod +x install.sh
 sudo sh install.sh
