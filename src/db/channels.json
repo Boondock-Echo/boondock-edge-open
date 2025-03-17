@@ -1,0 +1,29 @@
+[
+    {
+        "id": 1,
+        "mac": "B8D61A5AD264",
+        "name": "NOAA_1",
+        "status": "online",
+        "model": "medium.en",
+        "src_language": "english",
+        "sensitivity": "47",
+        "silence": "2600",
+        "min_rec": "2600",
+        "max_rec": "26000",
+        "audio_gain": "3",
+        "color": "#1d1e20",
+        "background_color": "#ffffff",
+        "team_color": "#f59e0b",
+        "target_language": "english",
+        "driver": "driver name",
+        "person": "john",
+        "tag": "john",
+        "car": "car name",
+        "state": "resume",
+        "frequency": 1624400,
+        "tone": "",
+        "type": "NFM",
+        "firmware": "2025-03-14",
+        "ip": "10.0.2.34"
+    }
+]

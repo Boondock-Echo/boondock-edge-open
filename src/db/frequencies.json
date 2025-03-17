@@ -1,0 +1,72 @@
+[
+    {
+        "id": 1,
+        "name": "NOAA_1",
+        "frequency": 1624400.0,
+        "type": "NFM",
+        "tone": "",
+        "tag": "",
+        "person": "",
+        "status": ""
+    },
+    {
+        "id": 2,
+        "name": "NOAA_2",
+        "frequency": 1624250.0,
+        "type": "NFM",
+        "tone": "CTCSS 94.8",
+        "tag": "Chicago",
+        "person": "suraj",
+        "status": ""
+    },
+    {
+        "id": 3,
+        "name": "NOAA_3",
+        "frequency": 1624500.0,
+        "type": "NFM",
+        "tone": "",
+        "tag": "Racing",
+        "person": "test",
+        "status": ""
+    },
+    {
+        "id": 4,
+        "name": "NOAA_4",
+        "frequency": 1624750,
+        "type": "NFM",
+        "tone": "",
+        "tag": "",
+        "person": "",
+        "status": ""
+    },
+    {
+        "id": 5,
+        "name": "NOAA_5",
+        "frequency": 1625000,
+        "type": "NFM",
+        "tone": "",
+        "tag": "",
+        "person": "",
+        "status": ""
+    },
+    {
+        "id": 6,
+        "name": "NOAA_6",
+        "frequency": 1625250,
+        "type": "NFM",
+        "tone": "",
+        "tag": "Chicago",
+        "person": "",
+        "status": ""
+    },
+    {
+        "id": 7,
+        "name": "NOAA_7",
+        "frequency": 1625500,
+        "type": "NFM",
+        "tone": "",
+        "tag": "",
+        "person": "",
+        "status": ""
+    }
+]

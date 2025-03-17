@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Channel Audio Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 20% 80%;
+            height: 100vh;
+        }
+
+        .channel-sidebar {
+            background: #f8f9fa;
+            padding: 20px;
+            border-right: 1px solid #dee2e6;
+            overflow-y: auto;
+        }
+
+        .content-area {
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .channel-option {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .channel-option:hover {
+            background: #e9ecef;
+            border-radius: 4px;
+        }
+
+        .recording-item {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .recording-header {
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin-bottom: 8px;
+        }
+
+        .recording-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .transcription {
+            flex-grow: 1;
+            line-height: 1.5;
+        }
+
+        .play-button {
+            background: #f8f9fa;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .play-button:hover {
+            background: #e9ecef;
+        }
+
+        .play-button.playing {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .hidden-audio {
+            display: none;
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 24px;
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="channel-sidebar">
+            <h2>Channels</h2>
+            <div id="channel-list">
+                <label class="channel-option">
+                    <input type="radio" name="channel" value="all" checked>
+                    <span>All Channels</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <h1>Multi-Channel Audio Dashboard</h1>
+            <div id="recordings-container"></div>
+        </div>
+    </div>
+
+    <script>
+        let channels = [];
+        let selectedChannel = 'all';
+        let currentlyPlaying = null;
+
+        function formatTimestamp(timestamp) {
+            const year = timestamp.slice(0, 4);
+            const month = timestamp.slice(4, 6);
+            const day = timestamp.slice(6, 8);
+            const hour = timestamp.slice(9, 11);
+            const minute = timestamp.slice(11, 13);
+            const second = timestamp.slice(13, 15);
+            return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+        }
+
+        function createRecordingElement(recording) {
+            return `
+                <div class="recording-item" data-id="${recording.id}">
+                    <div class="recording-header">
+                        Channel ${recording.channel_id} | ${formatTimestamp(recording.timestamp)}
+                    </div>
+                    <div class="recording-content">
+                        <div class="transcription">${recording.transcription}</div>
+                        <button class="play-button" onclick="togglePlay('${recording.id}', '${recording.filename}')">
+                            ▶
+                        </button>
+                        <audio id="audio-${recording.id}" class="hidden-audio">
+                            <source src="${recording.filename}" type="audio/wav">
+                        </audio>
+                    </div>
+                </div>
+            `;
+        }
+
+        function togglePlay(recordingId, filename) {
+            const audio = document.getElementById(`audio-${recordingId}`);
+            const button = document.querySelector(`.recording-item[data-id="${recordingId}"] .play-button`);
+            
+            if (currentlyPlaying && currentlyPlaying !== audio) {
+                currentlyPlaying.pause();
+                currentlyPlaying.currentTime = 0;
+                document.querySelectorAll('.play-button').forEach(btn => {
+                    btn.classList.remove('playing');
+                    btn.textContent = '▶';
+                });
+            }
+
+            if (audio.paused) {
+                audio.play();
+                button.classList.add('playing');
+                button.textContent = '⏸';
+                currentlyPlaying = audio;
+            } else {
+                audio.pause();
+                audio.currentTime = 0;
+                button.classList.remove('playing');
+                button.textContent = '▶';
+                currentlyPlaying = null;
+            }
+        }
+
+        function loadChannels() {
+            $.get('/api/channels', function(channelData) {
+                channels = channelData;
+                const channelList = document.getElementById('channel-list');
+                
+                channels.forEach(channel => {
+                    const channelOption = `
+                        <label class="channel-option">
+                            <input type="radio" name="channel" value="${channel.id}">
+                            <span>Channel ${channel.id}</span>
+                        </label>
+                    `;
+                    channelList.insertAdjacentHTML('beforeend', channelOption);
+                });
+
+                // Add change handlers for radio buttons
+                document.querySelectorAll('input[name="channel"]').forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        selectedChannel = this.value;
+                        loadRecordings();
+                    });
+                });
+            });
+        }
+
+        function loadRecordings() {
+            const url = selectedChannel === 'all' 
+                ? '/api/recordings'
+                : `/api/channel/${selectedChannel}/recordings`;
+            
+            $.get(url, function(recordings) {
+                const container = document.getElementById('recordings-container');
+                container.innerHTML = '';
+                recordings.forEach(recording => {
+                    container.insertAdjacentHTML('beforeend', createRecordingElement(recording));
+                });
+            });
+        }
+
+        // Initialize
+        loadChannels();
+        loadRecordings();
+
+        // Check for new recordings every 5 seconds
+        setInterval(loadRecordings, 5000);
+    </script>
+</body>
+</html>

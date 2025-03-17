@@ -3,11 +3,15 @@ Boondock Edge Open Source is a free to use solution for personal usage. It uses 
 
 ### What you need
 
-Raspberry Pi
-Geekworm UPS
-5 Inch LCD
-Li-ion 16520 rechargable batteries
-Boondock Tango
+
+- Raspberry Pi
+- Geekworm UPS
+- 5 Inch LCD
+- Li-ion 16520 rechargable batteries
+- Boondock Tango
 
 
-### Installatio
+### Installation
+
+Setup Raspberry Pi 5 with Lite OS, on a 64GB Micro SD card.
+
