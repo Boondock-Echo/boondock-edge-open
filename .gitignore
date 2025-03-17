@@ -1,0 +1,4 @@
+src/app.log
+src/logs/*
+src/db/default.db
+src/__pycache__/*
