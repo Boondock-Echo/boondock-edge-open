@@ -46,8 +46,8 @@ After=network.target
 ExecStart=$VENV_DIR/bin/python $INSTALL_DIR/run.py
 WorkingDirectory=$INSTALL_DIR
 Restart=always
-User=pi
-Group=pi
+User=boondock
+Group=boondock
 
 [Install]
 WantedBy=multi-user.target
@@ -55,7 +55,7 @@ EOL
 
 # Set permissions
 echo "Setting permissions..."
-chown -R pi:pi "$INSTALL_DIR"
+chown -R boondock:boondock "$INSTALL_DIR"
 chmod 644 "$SERVICE_FILE"
 
 # Enable and start the service
