@@ -8,6 +8,7 @@ PYTHON_BIN="python3"
 SRC_DIR="./src"
 REQUIREMENTS_FILE="requirements.txt"
 SERVICE_FILE="/etc/systemd/system/$APP_NAME.service"
+USERNAME="boondock"
 
 # Exit on any error
 set -e
@@ -17,6 +18,26 @@ if [ "$EUID" -ne 0 ]; then
     echo "Please run this script as root (using sudo)"
     exit 1
 fi
+
+# Check if user exists, create if it doesn't
+if ! id "$USERNAME" >/dev/null 2>&1; then
+    echo "Creating user $USERNAME..."
+    useradd -m -s /bin/bash "$USERNAME"
+    echo "Setting password for $USERNAME (you will be prompted)..."
+    passwd "$USERNAME"
+    # Add to sudo group for admin privileges
+    usermod -aG sudo "$USERNAME"
+fi
+
+# Remove existing installation directory if it exists
+if [ -d "$INSTALL_DIR" ]; then
+    echo "Removing existing installation directory..."
+    rm -rf "$INSTALL_DIR"
+fi
+
+# Add user to dialout group for serial port access
+echo "Granting serial port access..."
+usermod -aG dialout "$USERNAME"
 
 # Create installation directory
 echo "Creating installation directory..."
@@ -46,8 +67,8 @@ After=network.target
 ExecStart=$VENV_DIR/bin/python $INSTALL_DIR/run.py
 WorkingDirectory=$INSTALL_DIR
 Restart=always
-User=boondock
-Group=boondock
+User=$USERNAME
+Group=$USERNAME
 
 [Install]
 WantedBy=multi-user.target
@@ -55,7 +76,7 @@ EOL
 
 # Set permissions
 echo "Setting permissions..."
-chown -R boondock:boondock "$INSTALL_DIR"
+chown -R "$USERNAME:$USERNAME" "$INSTALL_DIR"
 chmod 644 "$SERVICE_FILE"
 
 # Enable and start the service
