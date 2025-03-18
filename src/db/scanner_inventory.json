@@ -3,6 +3,6 @@
         "port": "COM120",
         "model": "MDL,BC125AT",
         "version": "VER,Version 1.06.06",
-        "status": "connected"
+        "status": "disconnected"
     }
 }

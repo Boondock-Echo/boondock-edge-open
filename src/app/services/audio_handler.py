@@ -262,7 +262,7 @@ class MultiChannelAudioHandler:
                         transcription = self.transcription_service.transcribe_audio(
                             absolute_path 
                         )
-                        transcription_logger.info(f"Transcription completed for uploaded file: {task.file_path}")
+                        #transcription_logger.info(f"Transcription completed for uploaded file: {task.file_path}")
                         
                         if transcription:
                             channel.save_recording(task.file_path, task.timestamp, transcription)
@@ -361,7 +361,7 @@ class MultiChannelAudioHandler:
             transcription = self.transcription_service.transcribe_audio(
                 file_path 
             )
-            transcription_logger.info(f"Transcription completed for uploaded file: {file_path}")
+            #transcription_logger.info(f"Transcription completed for uploaded file: {file_path}")
 
             if transcription:
                 channel.save_recording(file_path, timestamp, transcription)
