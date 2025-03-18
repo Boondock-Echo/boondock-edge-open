@@ -182,7 +182,7 @@ class AudioChannel:
 class MultiChannelAudioHandler:
     """Handle multiple audio channels and their operations."""
     
-    def __init__(self, model_name="small", trans_local=False, trans_node=True, trans_openai=True):
+    def __init__(self, model_name="tiny.en", trans_local=False, trans_node=True, trans_openai=True):
         try:
             self.running = False
             self.threads = []
@@ -398,7 +398,7 @@ def init_audio_handler():
         try:
             init_db()
             settings = load_settings()
-            model_name = settings.get("global_model", "small")
+            model_name = settings.get("global_model", "tiny.en")
 
             trans_local = settings.get("global_transcribe_local", "False")
             trans_node = settings.get("global_transcribe_node", "False")
