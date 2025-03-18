@@ -260,10 +260,7 @@ class MultiChannelAudioHandler:
                         
                         transcription_logger.info(f"Starting transcription for uploaded file: {task.file_path}")
                         transcription = self.transcription_service.transcribe_audio(
-                            absolute_path,
-                            use_local=self.trans_local,
-                            use_openai=self.trans_openai,
-                            use_nodes=self.trans_node
+                            absolute_path 
                         )
                         transcription_logger.info(f"Transcription completed for uploaded file: {task.file_path}")
                         
@@ -362,10 +359,7 @@ class MultiChannelAudioHandler:
 
             transcription_logger.info(f"Starting transcription for uploaded file: {file_path}")
             transcription = self.transcription_service.transcribe_audio(
-                file_path,
-                use_local=self.trans_local,
-                use_openai=self.trans_openai,
-                use_nodes=self.trans_node
+                file_path 
             )
             transcription_logger.info(f"Transcription completed for uploaded file: {file_path}")
 
