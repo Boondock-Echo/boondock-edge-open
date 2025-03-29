@@ -3,5 +3,14 @@
     "global_target_language": "english",
     "global_hallucination": "False",
     "global_timezone": "UTC",
-    "keywords": []
+    "keywords": ["fire", "danger","emergency","sos", "alert", "help"],
+    "event_name": "default",
+    "global_transcribe_local": "True",
+    "global_transcribe_node": "True",
+    "global_transcribe_openai": "True",
+    "transcription_endpoint": "",
+    "open_ai_key": "",
+    "api_health_url": "",
+    "api_transcription_url": ""
+
 }

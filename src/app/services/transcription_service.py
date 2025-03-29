@@ -37,6 +37,10 @@ class TranscriptionService:
         # Store model name for lazy loading the local Whisper model
         self.model_name = model_name
 
+
+        # Load hallucinations once during initialization
+        self.hallucinations = self._load_hallucinations()
+
         # Initialize connectivity check on startup to verify service availability
         self._initial_connectivity_check() 
         
@@ -74,10 +78,28 @@ class TranscriptionService:
             error_logger.error(f"Failed to load API key from settings.json: {str(e)}")
             return None
 
+    def _load_hallucinations(self):
+        """
+        Load hallucinations from hallucinations.txt file once and return them
+        
+        Returns:
+            set: Set of hallucination phrases in lowercase
+        """
+        try:
+            with open("hallucinations.txt", "r", encoding="utf-8") as file:
+                hallucinations = {line.strip().lower() for line in file if line.strip()}
+            transcription_logger.info(f"Loaded {len(hallucinations)} hallucinations from file")
+            return hallucinations
+        except FileNotFoundError:
+            error_logger.error("hallucinations.txt file not found, using empty set")
+            return set()
+        except Exception as e:
+            error_logger.error(f"Error reading hallucinations.txt: {str(e)}, using empty set")
+            return set()
 
     def _filter_hallucinations(self, text):
         """
-        Filter out common hallucinations from transcription results
+        Filter out common hallucinations from transcription results using pre-loaded set
         
         Args:
             text (str): Raw transcription text
@@ -88,74 +110,9 @@ class TranscriptionService:
         if not text or len(text.strip()) < 3:
             return "..."
             
-        hallucinations = [
-            "thank you.",
-            "thank you",
-            "thank you. thank you",
-            "thank you. thank you.",
-            "thank you. thank you. thank you.",
-            "thank you. bye.",
-            "thank you. bye-bye.",
-            "you",
-            "bye",
-            "bye.",
-            "bye-bye",
-            "bye-bye.",
-            "bye. bye.",
-            "Please see the complete disclaimer at https://sites.google.com/",
-            "... ... ... ... ... ... ... ... ... ...",
-            "thanks for watching",
-            "thanks for watching.",
-            "Tahnks for watching!",
-            "thank you very much.",
-            "thank you very much",
-            "transcription by castingwords",
-            "copyright © 2020, new thinking allowed foundation",
-            "subs by www.zeoranger.co.uk",
-            "thank you for watching!",
-            "thank you for watching.",
-            "thanks for watching!!!",
-            "we'll be right back.",
-            "if you have any questions or other problems, please post them in the comments. how to be a patron http://www.patreon.com thank you for watching!",
-            "if you like this video, please give me a thumb up and subscribe to my channel. thank you so much for watching this video.",
-            "if you have any questions or other problems, please post them in the comments.",
-            "thank you so much for watching this video.",
-            "請不吝點贊訂閱轉發打賞支持明鏡與點點欄目",
-            "toronto 2015 volunteers, presented by chevrolet",
-            "transcribed by https://otter.ai",
-            "www.globalonenessproject.org",
-            "go to beadaholique.com for all of your beading supply needs!",
-            "thank you. thank you. bye.",
-            "© transcript emily beynon",
-            "please subscribe",
-            "like and subscribe",
-            "click the link below",
-            "see you next time",
-            "have a great day",
-            "stay tuned",
-            "coming up next",
-            "don't forget to like",
-            "please like and subscribe",
-            "subscribe now",
-            "hit that subscribe button",
-            "thanks for listening",
-            "see you in the next video",
-            "until next time",
-            "to be continued",
-            "end of transcription",
-            "video ends",
-            "music fades out",
-            "intro music",
-            "outro music",
-            "[music playing]",
-            "[silence]",
-            "uh uh uh",
-            "um um um",
-            "background noise"
-        ]
+        lower_text = text.strip().lower()
+        return "..." if lower_text in self.hallucinations else text 
 
-        lowerText = text.strip().lower()
-        return "..." if lowerText in hallucinations else text    
 
     def _load_whisper_model(self):
         """
