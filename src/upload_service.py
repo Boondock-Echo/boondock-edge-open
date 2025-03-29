@@ -7,6 +7,7 @@ import logging
 from pytz import timezone
 import time
 import requests
+from config import Config
 
 # Set up logging
 error_logger = logging.getLogger('error_logger')
@@ -24,7 +25,7 @@ DB_PATH = os.path.join('db', 'default.db')
 QUEUE_JSON_PATH = os.path.join('db', 'queue.json')
 ALLOWED_EXTENSIONS = {'wav', 'mp3'}
 CHANNELS = []
-QUEUE_URL = 'http://127.0.0.1:4000/api/uploads/queue'
+QUEUE_URL = f'http://{Config.EVENT_HOST}:{Config.EVENT_PORT}/api/uploads/queue'
 
 # Database connection with retry mechanism
 def get_db_connection():
@@ -253,4 +254,4 @@ if __name__ == '__main__':
     os.makedirs('db', exist_ok=True)
     init_db()
     init_queue_file()
-    app.run(host='0.0.0.0', port=4002, debug=True)
+    app.run(host='0.0.0.0', port=Config.UPLOAD_PORT, debug=True)
