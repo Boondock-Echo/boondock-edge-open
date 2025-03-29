@@ -10,11 +10,14 @@ import {
   Logs,
   TriangleAlert,
   ImagePlay,
-  SmartphoneNfc,ListMusic,
-  Tag  // Added Tag icon for Keywords
+  SmartphoneNfc,
+  ListMusic,
+  Tag,
+  Menu,
+  X
 } from 'lucide-react';
 import GlobalSettings from "./GlobalSettings";
-import KeywordsSection from "./KeywordsSection"; // Import the KeywordsSection
+import KeywordsSection from "./KeywordsSection";
 import FrequencyManagement from "./FrequencyManagement";
 import ChannelSettings from "./ChannelSettings";
 import UserManagement from "../Users/index";
@@ -37,13 +40,25 @@ const SettingsPage = ({ isDarkMode }) => {
     hallucination: "True",
     transcribe_local: "medium.en"
   });
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const toastIdRef = useRef(null);
   const toastTimeoutRef = useRef(null);
   const edgeServerEndpoint = localStorage.getItem("EDGE_SERVER_ENDPOINT") || 
                            process.env.REACT_APP_EDGE_SERVER_ENDPOINT || "";
   const API_BASE_URL = `${edgeServerEndpoint}`;
+
+  // Only handle resize for mobile-to-desktop transition
+  useEffect(() => {
+    const handleResize = () => {
+      // Only close sidebar if it was open on mobile and screen becomes desktop-sized
+      if (window.innerWidth >= 768 && isSidebarOpen) {
+        setIsSidebarOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isSidebarOpen]);
 
   const showToast = useCallback((message, type = 'success') => {
     toastTimeoutRef.current = setTimeout(() => {
@@ -138,11 +153,11 @@ const SettingsPage = ({ isDarkMode }) => {
     { id: 'frequency', label: 'Frequencies', icon: AudioWaveform },
     // { id: 'scanner', label: 'Scanners', icon: SmartphoneNfc },
     { id: 'global', label: 'Global', icon: Settings },
-    { id: 'keywords', label: 'Keywords', icon: Tag }, // Added Keywords menu item
+    { id: 'keywords', label: 'Keywords', icon: Tag },
     { id: 'user', label: 'Users', icon: Users },
     { id: 'Branding', label: 'Branding', icon: ImagePlay },
     { id: 'danger', label: 'Danger Zone', icon: TriangleAlert },
-    // { id: 'audio', label: 'Audio Visulizer', icon: ListMusic },
+    // { id: 'audio', label: 'Audio Visualizer', icon: ListMusic },
     { id: 'Logs', label: 'Logs', icon: Logs },
   ];
 
@@ -155,25 +170,49 @@ const SettingsPage = ({ isDarkMode }) => {
   }
 
   return (
-    <div className={`${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-800'} min-h-screen`}>
-      <div className="flex h-screen">
-        <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} w-64 border-r flex flex-col`}>
-          <div className="p-6 border-b border-gray-200">
+    <div className={`${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-800'} min-h-screen flex flex-col md:flex-row`}>
+      {/* Mobile Menu Button - Only visible below md breakpoint */}
+      <div className="md:hidden fixed top-0 left-0 z-50 p-4">
+        <button 
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="p-2 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+        >
+          {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
+
+      {/* Sidebar - Fixed on mobile, static on desktop */}
+      <div
+        className={`sidebar-container
+          ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} 
+          border-r w-64 flex-shrink-0
+          md:static md:h-auto
+          fixed top-0 left-0 h-full
+          transition-transform duration-300 ease-in-out
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          md:translate-x-0 z-40`}
+      >
+        <div className="flex flex-col h-full">
+          {/* Header only visible on desktop */}
+          <div className="p-6 border-b border-gray-200 hidden md:block">
             <div className="flex items-center gap-3">
               <Settings className="w-6 h-6 text-blue-600" />
               <h1 className="text-xl font-semibold">Settings</h1>
             </div>
           </div>
           
-          <nav className="flex-1 p-4">
+          <nav className="flex-1 p-4 overflow-y-auto">
             <div className="space-y-1">
               {sidebarItems.map((item) => {
                 const Icon = item.icon;
                 return (
                   <button
                     key={item.id}
-                    onClick={() => setActiveSection(item.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    onClick={() => {
+                      setActiveSection(item.id);
+                      setIsSidebarOpen(false); // Only affects mobile
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left ${
                       activeSection === item.id 
                         ? 'bg-blue-600 text-white' 
                         : `${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'}`
@@ -189,7 +228,10 @@ const SettingsPage = ({ isDarkMode }) => {
 
           <div className="p-4 border-t border-gray-200">
             <button
-              onClick={() => navigate("/")}
+              onClick={() => {
+                navigate("/");
+                setIsSidebarOpen(false); // Only affects mobile
+              }}
               className={`w-full flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                 isDarkMode 
                   ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
@@ -201,72 +243,80 @@ const SettingsPage = ({ isDarkMode }) => {
             </button>
           </div>
         </div>
+      </div>
 
-        <div className="flex-1 overflow-auto">
-          <div className="p-8">
-            <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg`}>
-              {activeSection === 'channel' && (
-                <ChannelSettings isDarkMode={isDarkMode} edgeServerEndpoint={edgeServerEndpoint} />
-              )}
-              {activeSection === 'global' && (
-                <GlobalSettings
-                  globalSettings={globalSettings}
-                  isDarkMode={isDarkMode}
-                  handleGlobalChange={async (field, value) => {
-                    try {
-                      await axios.put(`${API_BASE_URL}/settings`, { [`global_${field}`]: value });
-                      setGlobalSettings(prev => ({ ...prev, [field]: value }));
-                      showToast('Global settings updated successfully!');
-                    } catch (error) {
-                      console.error('Error updating global settings:', error);
-                      showToast('Error updating global settings!', 'error');
-                    }
-                  }}
-                  // Removed keywords-related props since they're now in a separate section
-                />
-              )}
-              {activeSection === 'keywords' && (
-                <KeywordsSection
-                  keywords={keywords}
-                  newKeyword={newKeyword}
-                  setNewKeyword={setNewKeyword}
-                  handleAddKeyword={handleAddKeyword}
-                  handleRemoveKeyword={handleRemoveKeyword}
-                  isDarkMode={isDarkMode}
-                />
-              )}
-              {activeSection === 'frequency' && (
-                <FrequencyManagement edgeServerEndpoint={edgeServerEndpoint} isDarkMode={isDarkMode} />
-              )}
-              {activeSection === 'user' && (
-                <UserManagement edgeServerEndpoint={edgeServerEndpoint} isDarkMode={isDarkMode} />
-              )}
-              {activeSection === 'scanner' && (
-                <ScannerTable edgeServerEndpoint={edgeServerEndpoint} isDarkMode={isDarkMode} />
-              )}
-              {activeSection === 'audio' && (
-                <AudioLevelVisualizer edgeServerEndpoint={edgeServerEndpoint} isDarkMode={isDarkMode} />
-              )}
-              {activeSection === 'Branding' && (
-                <Branding edgeServerEndpoint={edgeServerEndpoint} isDarkMode={isDarkMode} />
-              )}
-              {activeSection === 'danger' && (
-                <DangerZone 
-                  edgeServerEndpoint={edgeServerEndpoint} 
-                  isDarkMode={isDarkMode}
-                  showToast={showToast}
-                />
-              )}
-              {activeSection === 'Logs' && (
-                <F1TerminalLogs edgeServerEndpoint={edgeServerEndpoint} isDarkMode={isDarkMode} />
-              )}
-            </div>
+      {/* Mobile Overlay - Only visible when sidebar is open on mobile */}
+      {isSidebarOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/50 z-30"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Main Content - Unchanged for desktop */}
+      <div className="flex-1 overflow-auto">
+        <div className="p-8 md:p-8 pt-16 md:pt-8">
+          <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg p-6`}>
+            {activeSection === 'channel' && (
+              <ChannelSettings isDarkMode={isDarkMode} edgeServerEndpoint={edgeServerEndpoint} />
+            )}
+            {activeSection === 'global' && (
+              <GlobalSettings
+                globalSettings={globalSettings}
+                isDarkMode={isDarkMode}
+                handleGlobalChange={async (field, value) => {
+                  try {
+                    await axios.put(`${API_BASE_URL}/settings`, { [`global_${field}`]: value });
+                    setGlobalSettings(prev => ({ ...prev, [field]: value }));
+                    showToast('Global settings updated successfully!');
+                  } catch (error) {
+                    console.error('Error updating global settings:', error);
+                    showToast('Error updating global settings!', 'error');
+                  }
+                }}
+              />
+            )}
+            {activeSection === 'keywords' && (
+              <KeywordsSection
+                keywords={keywords}
+                newKeyword={newKeyword}
+                setNewKeyword={setNewKeyword}
+                handleAddKeyword={handleAddKeyword}
+                handleRemoveKeyword={handleRemoveKeyword}
+                isDarkMode={isDarkMode}
+              />
+            )}
+            {activeSection === 'frequency' && (
+              <FrequencyManagement edgeServerEndpoint={edgeServerEndpoint} isDarkMode={isDarkMode} />
+            )}
+            {activeSection === 'user' && (
+              <UserManagement edgeServerEndpoint={edgeServerEndpoint} isDarkMode={isDarkMode} />
+            )}
+            {activeSection === 'scanner' && (
+              <ScannerTable edgeServerEndpoint={edgeServerEndpoint} isDarkMode={isDarkMode} />
+            )}
+            {activeSection === 'audio' && (
+              <AudioLevelVisualizer edgeServerEndpoint={edgeServerEndpoint} isDarkMode={isDarkMode} />
+            )}
+            {activeSection === 'Branding' && (
+              <Branding edgeServerEndpoint={edgeServerEndpoint} isDarkMode={isDarkMode} />
+            )}
+            {activeSection === 'danger' && (
+              <DangerZone 
+                edgeServerEndpoint={edgeServerEndpoint} 
+                isDarkMode={isDarkMode}
+                showToast={showToast}
+              />
+            )}
+            {activeSection === 'Logs' && (
+              <F1TerminalLogs edgeServerEndpoint={edgeServerEndpoint} isDarkMode={isDarkMode} />
+            )}
           </div>
         </div>
       </div>
-      {/* <ToastContainer /> */}
+
+      <ToastContainer />
     </div>
   );
 };
-
 export default SettingsPage;

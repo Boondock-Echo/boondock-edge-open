@@ -10,6 +10,7 @@ const FooterPagination = ({
   getTotalPages,
   recordsPerPage,
   setRecordsPerPage,
+  isMobile
 }) => {
   const totalMessages = getFilteredMessages().length;
   const totalPages = getTotalPages(totalMessages);
@@ -28,30 +29,26 @@ const FooterPagination = ({
     borderBackground: isDarkMode ? 'bg-[#ff8b2d]/5' : 'bg-gray-100',
   };
 
-  
-
   return (
     <div
       className={`sticky bottom-0 ${commonStyles.background} border-t ${commonStyles.borderColor} ${commonStyles.textColor} z-10`}
     >
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16 space-x-4">
-          {/* Previous Page Button */}
+      <div className="max-w-7xl mx-auto px-2 md:px-4">
+        <div className={`flex items-center ${isMobile ? 'flex-col space-y-2 py-2' : 'justify-between h-16 space-x-4'}`}>
           <button
-            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className={`flex items-center px-4 py-2 rounded-lg ${commonStyles.buttonBackground} ${commonStyles.buttonHoverBackground} ${commonStyles.borderColor} ${commonStyles.disabledOpacity} transition-all duration-300 group`}
+            className={`flex items-center px-3 py-1.5 md:px-4 md:py-2 rounded-lg ${commonStyles.buttonBackground} ${commonStyles.buttonHoverBackground} ${commonStyles.borderColor} ${commonStyles.disabledOpacity} transition-all duration-300 group`}
           >
             <ChevronLeft
-              size={16}
-              className={`mr-2 ${commonStyles.secondaryTextColor} group-hover:transform group-hover:-translate-x-0.5 transition-transform`}
+              size={isMobile ? 14 : 16}
+              className={`mr-1 md:mr-2 ${commonStyles.secondaryTextColor} group-hover:transform group-hover:-translate-x-0.5 transition-transform`}
             />
-            <span className={`${commonStyles.secondaryTextColor} font-medium`}>NEW</span>
+            <span className={`${commonStyles.secondaryTextColor} font-medium text-sm md:text-base`}>NEW</span>
           </button>
 
-          {/* Records Info */}
-          <div className={`flex-1 text-center px-4 py-1.5 rounded-lg ${commonStyles.borderBackground} ${commonStyles.borderColor}`}>
-            <span className="text-sm font-medium">
+          <div className={`text-center px-3 py-1 rounded-lg ${commonStyles.borderBackground} ${commonStyles.borderColor} ${isMobile ? 'w-full' : 'flex-1'}`}>
+            <span className="text-xs md:text-sm font-medium">
               Showing{' '}
               <span className={commonStyles.secondaryTextColor}>
                 {startRecord}-{endRecord}
@@ -59,18 +56,16 @@ const FooterPagination = ({
               of{' '}
               <span className={commonStyles.secondaryTextColor}>
                 {totalMessages}
-              </span>{' '}
-              records
+              </span>
             </span>
           </div>
 
-          {/* Records Per Page Dropdown */}
-          <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium">Records Per Page:</label>
+          <div className={`flex items-center ${isMobile ? 'w-full justify-center' : 'space-x-2'}`}>
+            {!isMobile && <label className="text-sm font-medium">Records:</label>}
             <select
               value={recordsPerPage}
               onChange={(e) => setRecordsPerPage(Number(e.target.value))}
-              className={`px-2 py-1 rounded border ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} focus:ring focus:ring-orange-300 focus:outline-none`}
+              className={`px-2 py-1 rounded border ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} text-xs md:text-sm focus:ring focus:ring-orange-300 focus:outline-none`}
             >
               {[10, 20, 50, 100].map((option) => (
                 <option key={option} value={option}>
@@ -80,20 +75,15 @@ const FooterPagination = ({
             </select>
           </div>
 
-          {/* Next Page Button */}
           <button
-            onClick={() =>
-              setCurrentPage((prev) =>
-                Math.min(totalPages, prev + 1)
-              )
-            }
+            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
             disabled={currentPage === totalPages}
-            className={`flex items-center px-4 py-2 rounded-lg ${commonStyles.buttonBackground} ${commonStyles.buttonHoverBackground} ${commonStyles.borderColor} ${commonStyles.disabledOpacity} transition-all duration-300 group`}
+            className={`flex items-center px-3 py-1.5 md:px-4 md:py-2 rounded-lg ${commonStyles.buttonBackground} ${commonStyles.buttonHoverBackground} ${commonStyles.borderColor} ${commonStyles.disabledOpacity} transition-all duration-300 group`}
           >
-            <span className={`${commonStyles.secondaryTextColor} font-medium`}>OLD</span>
+            <span className={`${commonStyles.secondaryTextColor} font-medium text-sm md:text-base`}>OLD</span>
             <ChevronRight
-              size={16}
-              className={`ml-2 ${commonStyles.secondaryTextColor} group-hover:transform group-hover:translate-x-0.5 transition-transform`}
+              size={isMobile ? 14 : 16}
+              className={`ml-1 md:ml-2 ${commonStyles.secondaryTextColor} group-hover:transform group-hover:translate-x-0.5 transition-transform`}
             />
           </button>
         </div>

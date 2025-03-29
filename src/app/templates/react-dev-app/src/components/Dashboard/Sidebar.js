@@ -22,17 +22,17 @@ const TeamsSidebar = ({
   keywordCounts,
   channelMessageCounts,
   API_BASE_URL,
+  isMobile,
+  closeSidebar
 }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedChannel, setSelectedChannel] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState("channels"); // State to track active tab
+  const [activeTab, setActiveTab] = useState("channels");
 
   useEffect(() => {
     const storedActiveChannels = JSON.parse(localStorage.getItem("activeChannels"));
-    if (storedActiveChannels) {
-      setActiveChannels(storedActiveChannels);
-    }
+    if (storedActiveChannels) setActiveChannels(storedActiveChannels);
   }, [setActiveChannels]);
 
   const handleToggleChannel = (channelId) => {
@@ -55,10 +55,7 @@ const TeamsSidebar = ({
       if (response.data) {
         setChannels((prevChannels) => ({
           ...prevChannels,
-          [channelId]: {
-            ...prevChannels[channelId],
-            ...updatedChannel,
-          },
+          [channelId]: { ...prevChannels[channelId], ...updatedChannel },
         }));
       }
       setIsSettingsOpen(false);
@@ -73,16 +70,24 @@ const TeamsSidebar = ({
 
   return (
     <div
-      className={`w-72 flex flex-col overflow-hidden transition-colors duration-300 ${
+      className={`flex flex-col h-full transition-colors duration-300 ${
         isDarkMode ? "bg-gray-900 border-gray-700" : "bg-gray-50 border-gray-200"
-      }`}
-      style={{ height: "100vh" }}
+      } ${isMobile ? 'w-full' : 'w-72'}`}
     >
-      <SidebarHeader isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
-      <SidebarSearch searchQuery={searchQuery} setSearchQuery={setSearchQuery} isDarkMode={isDarkMode} />
+      <SidebarHeader 
+        isDarkMode={isDarkMode} 
+        toggleTheme={toggleTheme}
+        isMobile={isMobile}
+        closeSidebar={closeSidebar}
+      />
+      <SidebarSearch 
+        searchQuery={searchQuery} 
+        setSearchQuery={setSearchQuery} 
+        isDarkMode={isDarkMode}
+      />
 
       {/* Tab Navigation */}
-      <div className="flex border-b px-6">
+      <div className="flex border-b px-4 sm:px-6">
         <button
           className={`flex-1 py-2 text-sm font-medium ${
             activeTab === "channels"
@@ -99,7 +104,7 @@ const TeamsSidebar = ({
         </button>
         <button
           className={`flex-1 py-2 text-sm font-medium ${
-            activeTab === "keyword"
+            activeTab === "keywords"
               ? isDarkMode
                 ? "text-white border-b-2 border-blue-500"
                 : "text-gray-900 border-b-2 border-blue-500"

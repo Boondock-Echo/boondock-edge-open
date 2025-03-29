@@ -1,8 +1,8 @@
 {
     "SCANNER_001": {
-        "port": "COM120",
+        "port": "COM1",
         "model": "MDL,BC125AT",
         "version": "VER,Version 1.06.06",
-        "status": "disconnected"
+        "status": "connected"
     }
 }

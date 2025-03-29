@@ -435,7 +435,7 @@ const ChannelSettings = ({ edgeServerEndpoint, isDarkMode = false }) => {
           <Radio className={`w-6 h-6 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
           <div>
             <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              Radio Channel Control Center
+              Channels
             </h1>
             <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               Manage and configure your radio channels

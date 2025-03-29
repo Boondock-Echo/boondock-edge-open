@@ -217,6 +217,31 @@ def upload_audio():
     except Exception as e:
         error_logger.error(f"Error in upload_audio: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
+@audio_bp.route('/api/uploads/queue', methods=['POST'])
+def upload_audio_queue():
+    """Handle audio file uploads with real-time channel MAC address fetching."""
+    try:
+        mac = request.args.get('mac')  # Fetch MAC from query parameters
+        relative_path = request.args.get('relative_path')  # Fetch from query parameters
+        channel_id = request.args.get('channel_id')  # Fetch from query parameters
+
+        # Validate required parameters
+        if not relative_path or not channel_id:
+            return jsonify({'error': 'Missing required parameters'}), 400
+
+        # Get audio handler instance and queue the file for processing
+        audio_handler = get_audio_handler()
+        success, result = audio_handler.queue_upload_for_processing(relative_path, channel_id)
+
+        if success:
+            return jsonify({'message': 'OK'}), 200
+        
+        return jsonify({'error': f'Error queueing file: {result}'}), 500
+
+    except Exception as e:
+        error_logger.error(f"Error in upload_audio_queue: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
 @audio_bp.route('/api/uploads/<filename>/status', methods=['GET'])
 def get_upload_status(filename):
     """Get the processing status of an uploaded file."""

@@ -21,9 +21,11 @@ const FullscreenMessages = ({
   isFullscreen,
   onToggleFullscreen,
   isDarkMode,
-  setMessages 
+  setMessages,
+  isMobile
 }) => {
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   const toastTimeoutRef = useRef(null);
   const toastIdRef = useRef(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
@@ -32,45 +34,29 @@ const FullscreenMessages = ({
 
   const showToast = useCallback((message, type = 'success') => {
     const toastOptions = {
-      position: 'top-right',
+      position: isMobile ? 'bottom-center' : 'top-right',
       autoClose: 3000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
-      progress: undefined,
       theme: isDarkMode ? "dark" : "light",
-      onClose: () => {
-        toastIdRef.current = null;
-      }
     };
 
-    // Clear any existing timeout
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    if (toastIdRef.current) toast.dismiss(toastIdRef.current);
 
-    // Dismiss existing toast
-    if (toastIdRef.current) {
-      toast.dismiss(toastIdRef.current);
-    }
-
-    // Show new toast after a brief delay
     toastTimeoutRef.current = setTimeout(() => {
-      toastIdRef.current = type === 'success' 
+      toastIdRef.current = type === 'success'
         ? toast.success(message, toastOptions)
         : toast.error(message, toastOptions);
     }, 100);
-  }, [isDarkMode]);
+  }, [isDarkMode, isMobile]);
 
   useEffect(() => {
     return () => {
-      if (toastTimeoutRef.current) {
-        clearTimeout(toastTimeoutRef.current);
-      }
-      if (toastIdRef.current) {
-        toast.dismiss(toastIdRef.current);
-      }
+      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+      if (toastIdRef.current) toast.dismiss(toastIdRef.current);
     };
   }, []);
 
@@ -85,8 +71,6 @@ const FullscreenMessages = ({
     }
   }, [messages, isAtBottom]);
 
-  const backgroundColor = isDarkMode ? "bg-gray-900" : "bg-white";
-
   const deleteMessage = async (id) => {
     setHiddenMessages(prev => new Set([...prev, id]));
     setDeletingIds(prev => new Set([...prev, id]));
@@ -94,7 +78,7 @@ const FullscreenMessages = ({
     try {
       await axios.delete(`${edgeServerEndpoint}/recordings/${id}`);
       setMessages(prev => prev.filter(msg => msg.id !== id));
-      showToast("Message successfully deleted", "success");
+      showToast("Message deleted", "success");
     } catch (error) {
       console.error("Error deleting message:", error);
       setHiddenMessages(prev => {
@@ -102,7 +86,7 @@ const FullscreenMessages = ({
         newSet.delete(id);
         return newSet;
       });
-      showToast("Failed to delete message. Please try again.", "error");
+      showToast("Failed to delete message", "error");
     } finally {
       setDeletingIds(prev => {
         const newSet = new Set(prev);
@@ -113,30 +97,33 @@ const FullscreenMessages = ({
   };
 
   return (
-    <div className={`relative ${backgroundColor} ${isFullscreen ? "fixed inset-0 z-50" : "flex-1"}`}>
+    <div className={`relative ${isDarkMode ? "bg-gray-900" : "bg-white"} ${isFullscreen ? "fixed inset-0 z-50" : "flex-1"}`}>
       <div 
+        ref={messagesContainerRef}
         className={`overflow-y-auto ${isDarkMode ? "dark-mode-scrollbar" : ""} ${
-          isFullscreen ? "h-screen p-6" : "flex-1 max-h-[calc(100vh-100px)] p-4"
+          isFullscreen 
+            ? "h-screen p-4 sm:p-6" 
+            : "flex-1 max-h-[calc(100vh-100px)] p-2 sm:p-4"
         }`}
         onScroll={handleScroll}
       >
-        <div className="max-w-6xl mx-auto space-y-2">
+        <div className={`${isMobile ? 'space-y-1' : 'max-w-6xl mx-auto space-y-2'}`}>
           {messages.map((item, index) => !hiddenMessages.has(item.id) && (
             <div
               key={index}
-              className={`flex items-start space-x-2 mb-2 min-w-0 ${isFullscreen ? "mx-auto" : ""}`}
+              className={`flex items-start space-x-2 mb-2 min-w-0 ${isFullscreen && !isMobile ? "mx-auto" : ""}`}
               style={{ 
                 backgroundColor: channels[item.channel]?.background_color || "transparent",
               }}
             >
               {showTime && (
-                <span className="flex-shrink-0 text-gray-400 text-sm font-mono">
-                  [{formatTime(item.time,timezone)}]
+                <span className={`flex-shrink-0 text-gray-400 ${isMobile ? 'text-xs' : 'text-sm'} font-mono`}>
+                  [{formatTime(item.time, timezone)}]
                 </span>
               )}
 
               <span
-                className="flex-shrink-0 font-semibold whitespace-nowrap"
+                className={`flex-shrink-0 font-semibold whitespace-nowrap ${isMobile ? 'text-sm' : ''}`}
                 style={{ color: channels[item.channel]?.team_color }}
               >
                 {[
@@ -152,8 +139,18 @@ const FullscreenMessages = ({
                 className="flex-grow min-w-0 cursor-pointer group"
                 onClick={() => item.url && handlePlayAudio(item.url)}
               >
-                <div className="break-words" style={{ color: channels[item.channel]?.color }}>
-                  {highlightText(item.message, searchQuery)}
+                <div className={`break-words ${isMobile ? 'text-sm' : ''}`} style={{ color: channels[item.channel]?.color }}>
+                  {item.message !== "No transcription available" && highlightText(item.message, searchQuery)}
+                  {item.message === "No transcription available" && item.status === "queued" && (
+                    <span className={`inline-block ml-2 px-2 py-1 ${isMobile ? 'text-xs' : 'text-xs'} font-medium rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300`}>
+                      {item.status}
+                    </span>
+                  )}
+                  {item.message === "No transcription available" && item.status === "queue_failed" && (
+                    <span className={`inline-block ml-2 px-2 py-1 ${isMobile ? 'text-xs' : 'text-xs'} font-medium rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300`}>
+                      failed Job
+                    </span>
+                  )}
                   {item.url && (
                     <span className="inline-flex ml-2">
                       <AudioIcon url={item.url} />
@@ -164,14 +161,14 @@ const FullscreenMessages = ({
 
               <button
                 onClick={() => deleteMessage(item.id)}
-                className="p-2 text-red-500 hover:text-red-700 disabled:text-red-300"
+                className={`p-2 text-red-500 hover:text-red-700 disabled:text-red-300 ${isMobile ? 'p-1' : 'p-2'}`}
                 disabled={deletingIds.has(item.id)}
                 title="Delete Message"
               >
                 {deletingIds.has(item.id) ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} animate-spin`} />
                 ) : (
-                  <Trash2 className="w-5 h-5" />
+                  <Trash2 className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
                 )}
               </button>
             </div>
@@ -182,5 +179,4 @@ const FullscreenMessages = ({
     </div>
   );
 };
-
 export default FullscreenMessages;

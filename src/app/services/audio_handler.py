@@ -47,6 +47,7 @@ def init_db():
                 filename TEXT,
                 timestamp TEXT,
                 transcription TEXT
+                status TEXT DEFAULT 'new'
             )
         ''')
         
@@ -182,7 +183,7 @@ class AudioChannel:
 class MultiChannelAudioHandler:
     """Handle multiple audio channels and their operations."""
     
-    def __init__(self, model_name="tiny.en", trans_local=False, trans_node=True, trans_openai=True):
+    def __init__(self, model_name="small", trans_local=False, trans_node=True, trans_openai=True):
         try:
             self.running = False
             self.threads = []
@@ -260,9 +261,12 @@ class MultiChannelAudioHandler:
                         
                         transcription_logger.info(f"Starting transcription for uploaded file: {task.file_path}")
                         transcription = self.transcription_service.transcribe_audio(
-                            absolute_path 
+                            absolute_path,
+                            use_local=self.trans_local,
+                            use_openai=self.trans_openai,
+                            use_nodes=self.trans_node
                         )
-                        #transcription_logger.info(f"Transcription completed for uploaded file: {task.file_path}")
+                        transcription_logger.info(f"Transcription completed for uploaded file: {task.file_path}")
                         
                         if transcription:
                             channel.save_recording(task.file_path, task.timestamp, transcription)
@@ -319,7 +323,7 @@ class MultiChannelAudioHandler:
             try:
                 cursor = conn.cursor()
                 cursor.execute('''
-                    SELECT id, channel_id, filename, timestamp, transcription
+                    SELECT id, channel_id, filename, timestamp, transcription, status
                     FROM recordings
                     ORDER BY timestamp DESC
                 ''')
@@ -335,6 +339,7 @@ class MultiChannelAudioHandler:
                         'channel_id': row[1],
                         'filename': row[2],
                         'timestamp': row[3],
+                        'status': row[5],
                         'transcription': transcription
                     })
                 
@@ -359,9 +364,12 @@ class MultiChannelAudioHandler:
 
             transcription_logger.info(f"Starting transcription for uploaded file: {file_path}")
             transcription = self.transcription_service.transcribe_audio(
-                file_path 
+                file_path,
+                use_local=self.trans_local,
+                use_openai=self.trans_openai,
+                use_nodes=self.trans_node
             )
-            #transcription_logger.info(f"Transcription completed for uploaded file: {file_path}")
+            transcription_logger.info(f"Transcription completed for uploaded file: {file_path}")
 
             if transcription:
                 channel.save_recording(file_path, timestamp, transcription)
@@ -398,7 +406,7 @@ def init_audio_handler():
         try:
             init_db()
             settings = load_settings()
-            model_name = settings.get("global_model", "tiny.en")
+            model_name = settings.get("global_model", "small")
 
             trans_local = settings.get("global_transcribe_local", "False")
             trans_node = settings.get("global_transcribe_node", "False")

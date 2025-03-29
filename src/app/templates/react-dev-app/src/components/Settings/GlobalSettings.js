@@ -350,21 +350,7 @@ const GlobalSettings = ({
   return (
     <div className={`mx-auto space-y-8 p-6 transition-colors duration-300 ${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'}`}>
       {/* Header with Dark Mode Toggle */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-          Application Settings
-        </h1>
-        <button 
-          onClick={toggleDarkMode}
-          className={`p-3 rounded-full transition-all duration-300 ${
-            isDarkMode 
-              ? 'bg-gray-800 hover:bg-gray-700' 
-              : 'bg-white hover:bg-gray-100 shadow-md'
-          }`}
-        >
-          {isDarkMode ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-gray-700" />}
-        </button>
-      </div>
+     
 
       {/* Global Settings Section */}
       <div className={`bg-gradient-to-br rounded-2xl shadow-lg p-8 transition-all duration-300 ${

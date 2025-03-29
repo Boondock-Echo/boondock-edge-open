@@ -34,7 +34,8 @@ def initialize_db():
             channel_id INTEGER,
             filename TEXT,
             timestamp TEXT,
-            transcription TEXT
+            transcription TEXT,
+            status TEXT DEFAULT 'new'
         )
     ''')
     conn.commit()

@@ -1,0 +1,7 @@
+{
+    "global_model": "medium.en",
+    "global_target_language": "english",
+    "global_hallucination": "False",
+    "global_timezone": "UTC",
+    "keywords": []
+}

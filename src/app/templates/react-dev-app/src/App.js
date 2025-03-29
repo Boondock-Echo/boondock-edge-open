@@ -211,6 +211,7 @@ const App = () => {
         team: `Channel ${item.channel_id}`,
         time: item.timestamp,
         timezone: timezone,
+        status: item.hasOwnProperty("status") ? item.status : "new", // Ensures default value for old DB
         id: item.id,
         url: `${edgeServerEndpoint}/${item.filename.replace(/\\/g, '/')}`,
         message: item.transcription || "No transcription available",
